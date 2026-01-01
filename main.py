@@ -16,6 +16,22 @@ def windows(data: np.ndarray, window_bytes: int, stride_bytes: int):
     for start in range(0, len(data), stride_bytes):
         yield start, data[start:start+window_bytes]
 
+def shannon_entropy_bits(chunk: np.ndarray) -> float:
+    """
+    Extracts simple features per window using shannon entropy.
+    This will reveal sections in the executable.
+    - High Entropy: compressed or encrypted or packed 
+    - Low Entropy: structured or repeated patterns or padding
+
+    """
+    if chunk.size == 0:
+        return 0.0
+    counts = np.bincount(chunk, minlength=256).astype(np.float64)
+    p = counts / counts.sum()
+    p = p[p > 0]
+    return float(-(p * np.log2(p)).sum())
+
+
 def main():
     ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals")
     ap.add_argument("path", type=Path, help="Input binary file")
@@ -26,10 +42,22 @@ def main():
         raise SystemExit("Input file is empty")
 
     data = np.frombuffer(raw, dtype=np.uint8)
+
+    #testing stuff up:
+    # basic iformation:
     print("bytes:", data.size, "min:", data.min(), "max:", data.max())
+
+    #windows and strides:
     for i, (s, w) in enumerate(windows(data, 2048, 2048)):
         if i == 3: break
         print(s, len(w))
+    
+    #checking entropy
+    ents = []
+    for _, w in windows(data, 2048, 2048):
+        ents.append(shannon_entropy_bits(w))
+    print("entropy range:", min(ents), max(ents))
+
 
 
 if __name__ == "__main__":
