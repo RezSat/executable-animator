@@ -12,6 +12,9 @@ def windows(data: np.ndarray, window_bytes: int, stride_bytes: int):
     """
     window_bytes - or window_size is how much data we summarize at once
     stride_bytes - tells how far to move in each step
+
+    For large files: increase the window_bytes or stride_bytes to reduce 
+                     runtime and audio length
     """
     for start in range(0, len(data), stride_bytes):
         yield start, data[start:start+window_bytes]
@@ -19,6 +22,7 @@ def windows(data: np.ndarray, window_bytes: int, stride_bytes: int):
 def shannon_entropy_bits(chunk: np.ndarray) -> float:
     """
     Extracts simple features per window using shannon entropy.
+    (entropy in bits for byte distribution)
     This will reveal sections in the executable.
     - High Entropy: compressed or encrypted or packed 
     - Low Entropy: structured or repeated patterns or padding
