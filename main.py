@@ -17,17 +17,6 @@ class Features:
     nibble_hist: np.ndarray  # shape (16,), normalized
 
 
-def windows(data: np.ndarray, window_bytes: int, stride_bytes: int):
-    """
-    window_bytes - or window_size is how much data we summarize at once
-    stride_bytes - tells how far to move in each step
-
-    For large files: increase the window_bytes or stride_bytes to reduce 
-                     runtime and audio length
-    """
-    for start in range(0, len(data), stride_bytes):
-        yield start, data[start:start+window_bytes]
-
 def shannon_entropy_bits(chunk: np.ndarray) -> float:
     """
     Extracts simple features per window using shannon entropy.
@@ -59,6 +48,11 @@ def nibble_histogram(chunk: np.ndarray) -> np.ndarray:
 def extract_features(data: np.ndarray, window_bytes: int, stride_bytes: int) -> tuple[list[Features], np.ndarray]:
     """
     This extract all the necessary features from the data
+    window_bytes - or window_size is how much data we summarize at once
+    stride_bytes - tells how far to move in each step
+
+    For large files: increase the window_bytes or stride_bytes to reduce 
+                     runtime and audio length
     """
     feats: list[Features] = []
     starts = np.arange(0, data.size, stride_bytes, dtype=np.int64)
