@@ -35,6 +35,18 @@ def shannon_entropy_bits(chunk: np.ndarray) -> float:
     p = p[p > 0]
     return float(-(p * np.log2(p)).sum())
 
+def nibble_histogram(chunk: np.ndarray) -> np.ndarray:
+    """
+    Checking nibbles (half bytes) to reveal repeating instruction/padding patterns.
+    
+    """
+    if chunk.size == 0:
+        return np.zeros(16, dtype=np.float64)
+    lo = chunk & 0x0F
+    hi = (chunk >> 4) & 0x0F
+    h = np.bincount(lo, minlength=16).astype(np.float64) + np.bincount(hi, minlength=16).astype(np.float64)
+    h /= h.sum() if h.sum() else 1.0
+    return h
 
 def main():
     ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals")
@@ -61,6 +73,8 @@ def main():
     for _, w in windows(data, 2048, 2048):
         ents.append(shannon_entropy_bits(w))
     print("entropy range:", min(ents), max(ents))
+
+    print("Nibble hist first window:", nibble_histogram(data[:2048]))
 
 
 
