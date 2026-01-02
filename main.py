@@ -65,6 +65,9 @@ def extract_features(data: np.ndarray, window_bytes: int, stride_bytes: int) -> 
         feats.append(Features(entropy_bits=ent, mean=mu, std=sd, nibble_hist=nh))
     return feats, starts
 
+def midi_to_hz(midi_note: float) -> float:
+    return 440.0 * (2.0 ** ((midi_note - 69.0) / 12.0))
+
 def main():
     ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals")
     ap.add_argument("path", type=Path, help="Input binary file")
