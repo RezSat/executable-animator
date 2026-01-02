@@ -6,6 +6,7 @@
 from pathlib import Path
 import argparse
 import numpy as np
+import math
 
 from dataclasses import dataclass
 
@@ -67,6 +68,12 @@ def extract_features(data: np.ndarray, window_bytes: int, stride_bytes: int) -> 
 
 def midi_to_hz(midi_note: float) -> float:
     return 440.0 * (2.0 ** ((midi_note - 69.0) / 12.0))
+
+def quantize_to_scale(midi_note: float, scale_semitones: list[int]) -> float:
+    # snap midi_note to nearest note in repeating scale
+    base = math.floor(midi_note / 12.0) * 12
+    candidates = [base + s for s in scale_semitones] + [base + 12 + s for s in scale_semitones]
+    return float(min(candidates, key=lambda x: abs(x - midi_note)))
 
 def main():
     ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals")
