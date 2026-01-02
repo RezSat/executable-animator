@@ -75,6 +75,34 @@ def quantize_to_scale(midi_note: float, scale_semitones: list[int]) -> float:
     candidates = [base + s for s in scale_semitones] + [base + 12 + s for s in scale_semitones]
     return float(min(candidates, key=lambda x: abs(x - midi_note)))
 
+def synth_note(freq_hz: float, dur_s: float, sr: int, amp: float, brightness: float) -> np.ndarray:
+    """
+    Simple FM-ish synth:
+      - carrier freq = freq_hz
+      - mod freq = 2x carrier
+      - mod index scales with brightness
+    brightness: 0..1 (higher = brighter / more sidebands)
+    """
+    n = max(1, int(sr * dur_s))
+    t = np.arange(n, dtype=np.float64) / sr
+
+    mod_freq = freq_hz * 2.0
+    mod_index = 0.5 + 6.0 * float(np.clip(brightness, 0.0, 1.0))
+    phase = 2.0 * np.pi * freq_hz * t + mod_index * np.sin(2.0 * np.pi * mod_freq * t)
+
+    # soft saturating mix of sine + a tiny noise bed for texture
+    tone = np.sin(phase)
+
+    # Envelope (quick attack, exponential-ish decay)
+    attack = max(1, int(0.02 * n))
+    env = np.ones(n, dtype=np.float64)
+    env[:attack] = np.linspace(0.0, 1.0, attack)
+    env *= np.exp(-3.0 * t / max(dur_s, 1e-9))
+
+    y = amp * env * tone
+    return y
+
+
 def main():
     ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals")
     ap.add_argument("path", type=Path, help="Input binary file")
