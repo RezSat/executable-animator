@@ -7,6 +7,15 @@ from pathlib import Path
 import argparse
 import numpy as np
 
+from dataclasses import dataclass
+
+@dataclass
+class Features:
+    entropy_bits: float   # 0..8 for byte distribution
+    mean: float           # 0..255
+    std: float            # 0..~128
+    nibble_hist: np.ndarray  # shape (16,), normalized
+
 
 def windows(data: np.ndarray, window_bytes: int, stride_bytes: int):
     """
