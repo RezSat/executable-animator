@@ -38,7 +38,6 @@ def shannon_entropy_bits(chunk: np.ndarray) -> float:
 def nibble_histogram(chunk: np.ndarray) -> np.ndarray:
     """
     Checking nibbles (half bytes) to reveal repeating instruction/padding patterns.
-    
     """
     if chunk.size == 0:
         return np.zeros(16, dtype=np.float64)
@@ -74,6 +73,7 @@ def main():
         ents.append(shannon_entropy_bits(w))
     print("entropy range:", min(ents), max(ents))
 
+    #testing nibbles for first window
     print("Nibble hist first window:", nibble_histogram(data[:2048]))
 
 
