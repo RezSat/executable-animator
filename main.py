@@ -56,6 +56,21 @@ def nibble_histogram(chunk: np.ndarray) -> np.ndarray:
     h /= h.sum() if h.sum() else 1.0
     return h
 
+def extract_features(data: np.ndarray, window_bytes: int, stride_bytes: int) -> tuple[list[Features], np.ndarray]:
+    """
+    This extract all the necessary features from the data
+    """
+    feats: list[Features] = []
+    starts = np.arange(0, data.size, stride_bytes, dtype=np.int64)
+    for s in starts:
+        chunk = data[s:s + window_bytes]
+        ent = shannon_entropy_bits(chunk)
+        mu = float(chunk.mean()) if chunk.size else 0.0
+        sd = float(chunk.std()) if chunk.size else 0.0
+        nh = nibble_histogram(chunk)
+        feats.append(Features(entropy_bits=ent, mean=mu, std=sd, nibble_hist=nh))
+    return feats, starts
+
 def main():
     ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals")
     ap.add_argument("path", type=Path, help="Input binary file")
@@ -84,6 +99,10 @@ def main():
 
     #testing nibbles for first window
     print("Nibble hist first window:", nibble_histogram(data[:2048]))
+
+    feats, starts = extract_features(data, 2048, 2048)
+    print("Windows:", len(feats), "Entropy first:", feats[0].entropy_bits)
+
 
 
 
