@@ -76,24 +76,6 @@ def main():
 
     data = np.frombuffer(raw, dtype=np.uint8)
 
-    #testing stuff up:
-    # basic iformation:
-    print("bytes:", data.size, "min:", data.min(), "max:", data.max())
-
-    #windows and strides:
-    for i, (s, w) in enumerate(windows(data, 2048, 2048)):
-        if i == 3: break
-        print(s, len(w))
-    
-    #checking entropy
-    ents = []
-    for _, w in windows(data, 2048, 2048):
-        ents.append(shannon_entropy_bits(w))
-    print("entropy range:", min(ents), max(ents))
-
-    #testing nibbles for first window
-    print("Nibble hist first window:", nibble_histogram(data[:2048]))
-
     feats, starts = extract_features(data, 2048, 2048)
     print("Windows:", len(feats), "Entropy first:", feats[0].entropy_bits)
 
