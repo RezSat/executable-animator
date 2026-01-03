@@ -141,6 +141,63 @@ def write_wav(path: Path, y: np.ndarray, sr: int) -> None:
         wf.setframerate(sr)
         wf.writeframes(y16.tobytes())
 
+def make_visuals(out_png: Path, data: np.ndarray, features: list[Features], starts: np.ndarray, pitches: np.ndarray,
+                 window_bytes: int, stride_bytes: int, sr: int, note_dur: float) -> None:
+    # Byte image
+    width = 512
+    h = int(math.ceil(data.size / width))
+    pad = h * width - data.size
+    img = np.pad(data, (0, pad), mode="constant", constant_values=0).reshape(h, width)
+
+    entropy = np.array([f.entropy_bits for f in features], dtype=np.float64)
+    nib = np.stack([f.nibble_hist for f in features], axis=0) if features else np.zeros((1, 16))
+    x = np.arange(len(features), dtype=np.int64)
+
+    fig = plt.figure(figsize=(12, 9))
+
+    # 1) Byte image
+    ax1 = plt.subplot2grid((3, 2), (0, 0), colspan=2)
+    ax1.imshow(img, cmap="gray", aspect="auto", interpolation="nearest")
+    ax1.set_title("Byte image (grayscale hexdump)")
+    ax1.set_ylabel("Row")
+    ax1.set_xlabel("Byte index (mod 512)")
+
+    # 2) Rolling entropy + pitch
+    ax2 = plt.subplot2grid((3, 2), (1, 0))
+    ax2.plot(x, entropy)
+    ax2.set_title("Entropy per window (bits)")
+    ax2.set_xlabel("Window #")
+    ax2.set_ylabel("Entropy (0–8)")
+
+    ax2b = ax2.twinx()
+    ax2b.plot(x, pitches, alpha=0.6)
+    ax2b.set_ylabel("Quantized pitch (MIDI)")
+
+    # 3) Byte histogram
+    ax3 = plt.subplot2grid((3, 2), (1, 1))
+    hist = np.bincount(data, minlength=256)
+    ax3.plot(hist)
+    ax3.set_title("Byte histogram")
+    ax3.set_xlabel("Byte value")
+    ax3.set_ylabel("Count")
+
+    # 4) Nibble heatmap across time
+    ax4 = plt.subplot2grid((3, 2), (2, 0), colspan=2)
+    ax4.imshow(nib.T, aspect="auto", interpolation="nearest")
+    ax4.set_title("Nibble distribution over time (heatmap)")
+    ax4.set_xlabel("Window #")
+    ax4.set_ylabel("Nibble (0–15)")
+
+    # Footer text
+    total_audio_s = len(features) * note_dur
+    fig.suptitle(
+        f"bin2av | window={window_bytes}B stride={stride_bytes}B | windows={len(features)} | audio≈{total_audio_s:.1f}s @ {sr}Hz",
+        y=0.98
+    )
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    fig.savefig(out_png, dpi=160)
+    plt.close(fig)
+
 def main():
     ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals")
     ap.add_argument("path", type=Path, help="Input binary file")
@@ -157,6 +214,8 @@ def main():
     y, pitches = sonify(feats, 44100, 0.08, 36, 84)
     write_wav(Path("sample_output\out.wav"), y, 44100)
     print("Wrote out.wav")
+    make_visuals(Path("sample_output\out.png"), data, feats, starts, pitches, 2048, 2048, 44100, 0.08)
+    print("Wrote out.png")
 
 
 
