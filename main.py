@@ -9,6 +9,7 @@ import numpy as np
 import math
 import wave
 from dataclasses import dataclass
+import matplotlib.pyplot as plt
 
 @dataclass
 class Features:
