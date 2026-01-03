@@ -7,7 +7,7 @@ from pathlib import Path
 import argparse
 import numpy as np
 import math
-
+import wave
 from dataclasses import dataclass
 
 @dataclass
@@ -102,6 +102,43 @@ def synth_note(freq_hz: float, dur_s: float, sr: int, amp: float, brightness: fl
     y = amp * env * tone
     return y
 
+def sonify(features: list[Features], sr: int, note_dur: float,
+           midi_low: int, midi_high: int) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Concatenating notes turns whole file into audio.
+    """
+    # Pentatonic-ish scale tends to sound less random
+    scale = [0, 2, 4, 7, 9]  # major pentatonic within an octave
+
+    pitches = []
+    audio = []
+    for f in features:
+        # pitch from mean (0..255)
+        midi = midi_low + (midi_high - midi_low) * (f.mean / 255.0)
+        midi_q = quantize_to_scale(midi, scale)
+        freq = midi_to_hz(midi_q)
+
+        # amp from entropy (0..8) — more "complex" regions get louder
+        amp = 0.08 + 0.35 * (np.clip(f.entropy_bits, 0.0, 8.0) / 8.0)
+
+        # brightness from std (0..~128)
+        bright = np.clip(f.std / 90.0, 0.0, 1.0)
+
+        note = synth_note(freq, note_dur, sr, amp, bright)
+        audio.append(note)
+        pitches.append(midi_q)
+
+    y = np.concatenate(audio) if audio else np.zeros(1, dtype=np.float64)
+    y = np.clip(y, -1.0, 1.0)
+    return y, np.asarray(pitches, dtype=np.float64)
+
+def write_wav(path: Path, y: np.ndarray, sr: int) -> None:
+    y16 = (np.clip(y, -1.0, 1.0) * 32767.0).astype(np.int16)
+    with wave.open(str(path), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(sr)
+        wf.writeframes(y16.tobytes())
 
 def main():
     ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals")
