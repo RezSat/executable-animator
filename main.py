@@ -154,7 +154,7 @@ def main():
     feats, starts = extract_features(data, 2048, 2048)
     print("Windows:", len(feats), "Entropy first:", feats[0].entropy_bits)
     y, pitches = sonify(feats, 44100, 0.08, 36, 84)
-    write_wav(Path("out.wav"), y, 44100)
+    write_wav(Path("sample_output\out.wav"), y, 44100)
     print("Wrote out.wav")
 
 
