@@ -7,6 +7,11 @@
     python bin2av.py /path/to/file.bin -o out
     # outputs: out.wav, out.png
 
+    Tips:
+    - For large files, increase --stride_bytes or --window_bytes to reduce runtime and audio length.
+    - If you're specifically targeting executable machine code, point it at .exe/.dll/.so/.o and
+    tune window/stride.
+
 """
 from pathlib import Path
 import argparse
