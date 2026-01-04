@@ -2,7 +2,10 @@
     : Binary file to Music/Sound + Visual Generation using machine-code-ish patterns
     Author: <RezSat | Yehan Wasura>
     Email: wasurayehan@gmail.com
-
+    
+    Usage:
+    python bin2av.py /path/to/file.bin -o out
+    # outputs: out.wav, out.png
 
 """
 from pathlib import Path
