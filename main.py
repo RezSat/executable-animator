@@ -12,6 +12,12 @@
         - Computes pattern features per byte-window (entropy, mean, std, nibble distribution).
         - Sonifies each window as a short synthesized note (FM-ish tone) whose pitch/amp/brightness
         reflect those features.
+        - Produces a PNG dashboard with:
+        1) byte-image (a "DNA strip" of the file),
+        2) rolling entropy,
+        3) byte histogram,
+        4) nibble-distribution heatmap across time (often reveals instruction/padding structure).
+        - Writes a WAV you can play, and a PNG you can inspect.
 
     Tips:
     - For large files, increase --stride_bytes or --window_bytes to reduce runtime and audio length.
