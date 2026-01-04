@@ -7,6 +7,12 @@
     python bin2av.py /path/to/file.bin -o out
     # outputs: out.wav, out.png
 
+    What it does (no extra deps beyond numpy + matplotlib):
+        - Reads a binary file as bytes.
+        - Computes pattern features per byte-window (entropy, mean, std, nibble distribution).
+        - Sonifies each window as a short synthesized note (FM-ish tone) whose pitch/amp/brightness
+        reflect those features.
+
     Tips:
     - For large files, increase --stride_bytes or --window_bytes to reduce runtime and audio length.
     - If you're specifically targeting executable machine code, point it at .exe/.dll/.so/.o and
