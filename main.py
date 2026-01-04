@@ -2,6 +2,8 @@
     : Binary file to Music/Sound + Visual Generation using machine-code-ish patterns
     Author: <RezSat | Yehan Wasura>
     Email: wasurayehan@gmail.com
+
+
 """
 from pathlib import Path
 import argparse
@@ -198,25 +200,35 @@ def make_visuals(out_png: Path, data: np.ndarray, features: list[Features], star
     fig.savefig(out_png, dpi=160)
     plt.close(fig)
 
-def main():
-    ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals")
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Turn a binary file into sound + visuals.")
     ap.add_argument("path", type=Path, help="Input binary file")
+    ap.add_argument("-o", "--out", type=Path, default=Path("out"), help="Output prefix (default: out)")
+    ap.add_argument("--window_bytes", type=int, default=2048, help="Bytes per analysis window (default: 2048)")
+    ap.add_argument("--stride_bytes", type=int, default=2048, help="Stride between windows (default: 2048)")
+    ap.add_argument("--sr", type=int, default=44100, help="Sample rate (default: 44100)")
+    ap.add_argument("--note_dur", type=float, default=0.08, help="Seconds per window note (default: 0.08)")
+    ap.add_argument("--midi_low", type=int, default=36, help="Lowest MIDI note (default: 36)")
+    ap.add_argument("--midi_high", type=int, default=84, help="Highest MIDI note (default: 84)")
     args = ap.parse_args()
 
     raw = args.path.read_bytes()
     if not raw:
-        raise SystemExit("Input file is empty")
+        raise SystemExit("Input file is empty.")
 
     data = np.frombuffer(raw, dtype=np.uint8)
 
-    feats, starts = extract_features(data, 2048, 2048)
-    print("Windows:", len(feats), "Entropy first:", feats[0].entropy_bits)
-    y, pitches = sonify(feats, 44100, 0.08, 36, 84)
-    write_wav(Path("sample_output\out.wav"), y, 44100)
-    print("Wrote out.wav")
-    make_visuals(Path("sample_output\out.png"), data, feats, starts, pitches, 2048, 2048, 44100, 0.08)
-    print("Wrote out.png")
+    feats, starts = extract_features(data, args.window_bytes, args.stride_bytes)
+    y, pitches = sonify(feats, args.sr, args.note_dur, args.midi_low, args.midi_high)
 
+    out_wav = args.out.with_suffix(".wav")
+    out_png = args.out.with_suffix(".png")
+
+    write_wav(out_wav, y, args.sr)
+    make_visuals(out_png, data, feats, starts, pitches, args.window_bytes, args.stride_bytes, args.sr, args.note_dur)
+
+    print(f"Wrote {out_wav} and {out_png}")
+    return 0
 
 
 
