@@ -11,14 +11,14 @@ This project has two parts:
   - file picker + **Generate**
   - **Play / Stop / Loop**
   - 3 visualizer presets (oscilloscope / spectrum bars / radial pulse)
-  - zoom + pan PNG viewer with cursor-anchored zoom
+  - zoom + pan PNG viewer with cursor anchored zoom
 
 ---
 
 ## Why this is interesting (at least for me)
 
 Even without fully disassembling the binary, executables often contain recognizable *structural regions* (code, padding, string tables, resources, compressed/encrypted blobs, etc.).  
-By summarizing byte windows with simple statistics (entropy, histograms, nibble patterns) and mapping them into audio + plots, you get a weird-but-useful “signature” you can compare across files.
+By summarizing byte windows with simple statistics (entropy, histograms, nibble patterns) and mapping them into audio + plots, you get a weird but useful "signature" you can compare across files.
 
 ---
 
@@ -26,9 +26,9 @@ By summarizing byte windows with simple statistics (entropy, histograms, nibble 
 
 For each run you’ll get:
 
-- `*.wav` — audio generated from window-by-window features
+- `*.wav` — audio generated from window by window features
 - `*.png` — dashboard image:
-  - byte-image (“DNA strip”)
+  - byte-image ("DNA strip")
   - entropy over time (+ mapped pitch)
   - byte histogram
   - nibble heatmap over time
@@ -135,7 +135,7 @@ python main.py input.exe -o out \
 4. **Sonify** each window into a short note:
    - mean → pitch (quantized to a pentatonic-ish scale)
    - entropy → loudness
-   - std → “brightness” (FM-ish modulation index)
+   - std → "brightness" (FM-ish modulation index)
 5. **Visualize**:
    - byte-image (reshape bytes into rows)
    - entropy trace (and pitch overlay)
@@ -148,10 +148,10 @@ python main.py input.exe -o out \
 
 ```
 .
-├── gui.py              # GUI wrapper + player + visualizer
-├── main.py             # Worker: generate WAV + PNG
+├── gui.py # GUI wrapper + player + visualizer
+├── main.py # Worker: generate WAV + PNG
 ├── requirements.txt
-└── outputs/            # Generated files (created at runtime)
+└── outputs/ # Generated files (created at runtime)
 ```
 
 ---
