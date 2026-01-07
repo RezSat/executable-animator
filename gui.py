@@ -14,6 +14,12 @@ class EAGui:
         self.root.title(APP_TITLE)
         self.root.geometry("1200x720")
         self.input_path = StringVar(value="")
+
+        #state
+        self.wav_path = StringVar(value="")
+        self.png_path = StringVar(value="")
+        self.status = StringVar(value="Pick a file to begin.")
+
         self._build_ui()
 
     def _build_ui(self):
@@ -27,10 +33,25 @@ class EAGui:
 
         top.columnconfigure(1, weight=1)
 
+        #output paths
+        out = Frame(self.root, padx=10, pady=4)
+        out.pack(fill="x")
+        Label(out, text="WAV:").grid(row=0, column=0, sticky="w")
+        Label(out, textvariable=self.wav_path, anchor="w").grid(row=0, column=1, sticky="we")
+        Label(out, text="PNG:").grid(row=1, column=0, sticky="w")
+        Label(out, textvariable=self.png_path, anchor="w").grid(row=1, column=1, sticky="we")
+        out.columnconfigure(1, weight=1)
+
+        status = Frame(self.root, padx=10, pady=4)
+        status.pack(fill="x")
+        Label(status, textvariable=self.status, anchor="w").pack(fill="x")
+
+
     def on_browse(self):
         fp = filedialog.askopenfilename(title="Select binary / executable", filetypes=[("All files", "*.*")])
         if fp:
             self.input_path.set(fp)
+            self.status.set("Selected file. Click Generate.")
 
 
 def main():
