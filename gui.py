@@ -53,8 +53,9 @@ def run_main_py(main_py: Path, input_path: Path, out_prefix: Path, cfg: RenderCo
     return wav, png
 
 class EAGui:
-    def __init__(self, root: Tk):
+    def __init__(self, root: Tk, main_py: Path):
         self.root = root
+        self.main_py = main_py
 
         self.root.title(APP_TITLE)
         self.root.geometry("1200x720")
@@ -84,6 +85,7 @@ class EAGui:
         Entry(top, textvariable=self.input_path, width=80).grid(row=0, column=1, padx=6, sticky="we")
 
         Button(top, text="Browse…", command=self.on_browse).grid(row=0, column=2, padx=4)
+        Button(top, text="Generate", command=self.on_generate).grid(row=0, column=3, padx=4)
 
         top.columnconfigure(1, weight=1)
 
@@ -129,6 +131,9 @@ class EAGui:
             self.input_path.set(fp)
             self.status.set("Selected file. Click Generate.")
 
+    def on_generate(self):
+        pass
+
 def locate_main_py() -> Path:
     here = Path(__file__).resolve().parent
     cand = here / "main.py"
@@ -146,7 +151,7 @@ def main():
     main_py = args.main if args.main else locate_main_py()
 
     root = Tk()
-    EAGui(root)  # we'll pass main_py in the next commit
+    EAGui(root, main_py)
     root.mainloop()
 
 
