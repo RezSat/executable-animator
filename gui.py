@@ -12,10 +12,43 @@
 import argparse
 from pathlib import Path
 import sys
+import subprocess
+from dataclasses import dataclass
 from tkinter import Tk
 from tkinter import Frame, Label, Button, Entry, StringVar, filedialog
 
 APP_TITLE = "Executable Animator"
+OUTPUT_DIR = Path("outputs")
+
+@dataclass
+class RenderConfig:
+    window_bytes: int
+    stride_bytes: int
+    sr: int
+    note_dur: float
+    midi_low: int
+    midi_high: int
+
+def run_main_py(main_py: Path, input_path: Path, out_prefix: Path, cfg: RenderConfig) -> tuple[Path, Path]:
+    cmd = [
+        sys.executable, str(main_py),
+        str(input_path),
+        "-o", str(out_prefix),
+        "--window_bytes", str(cfg.window_bytes),
+        "--stride_bytes", str(cfg.stride_bytes),
+        "--sr", str(cfg.sr),
+        "--note_dur", str(cfg.note_dur),
+        "--midi_low", str(cfg.midi_low),
+        "--midi_high", str(cfg.midi_high),
+    ]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.strip() or proc.stdout.strip() or "main.py failed.")
+    wav = out_prefix.with_suffix(".wav")
+    png = out_prefix.with_suffix(".png")
+    if not wav.exists() or not png.exists():
+        raise RuntimeError("main.py finished but outputs were not found.")
+    return wav, png
 
 class EAGui:
     def __init__(self, root: Tk):
