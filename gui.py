@@ -16,6 +16,8 @@ import subprocess
 from dataclasses import dataclass
 from tkinter import Tk
 from tkinter import Frame, Label, Button, Entry, StringVar, filedialog
+from tkinter import IntVar, DoubleVar, BooleanVar
+from tkinter import ttk
 
 APP_TITLE = "Executable Animator"
 OUTPUT_DIR = Path("outputs")
@@ -53,15 +55,25 @@ def run_main_py(main_py: Path, input_path: Path, out_prefix: Path, cfg: RenderCo
 class EAGui:
     def __init__(self, root: Tk):
         self.root = root
+
         self.root.title(APP_TITLE)
         self.root.geometry("1200x720")
-        self.input_path = StringVar(value="")
 
         #state
+        self.input_path = StringVar(value="")
         self.wav_path = StringVar(value="")
         self.png_path = StringVar(value="")
         self.status = StringVar(value="Pick a file to begin.")
 
+        #Parameters
+        self.window_bytes = IntVar(value=2048)
+        self.stride_bytes = IntVar(value=2048)
+        self.sr = IntVar(value=44100)
+        self.note_dur = DoubleVar(value=0.08)
+        self.midi_low = IntVar(value=36)
+        self.midi_high = IntVar(value=84)
+
+        # UI
         self._build_ui()
 
     def _build_ui(self):
@@ -74,6 +86,28 @@ class EAGui:
         Button(top, text="Browse…", command=self.on_browse).grid(row=0, column=2, padx=4)
 
         top.columnconfigure(1, weight=1)
+
+        # Parameters row
+        params = Frame(self.root, padx=10, pady=6)
+        params.pack(fill="x")
+
+        def add_spin(label, var, frm, row, col, from_, to_, inc, width=8):
+            Label(frm, text=label).grid(row=row, column=col, sticky="w", padx=(0,4))
+            sb = ttk.Spinbox(frm, textvariable=var, from_=from_, to=to_, increment=inc, width=width)
+            sb.grid(row=row, column=col+1, sticky="w", padx=(0,12))
+            return sb
+
+        add_spin("window_bytes", self.window_bytes, params, 0, 0, 256, 65536, 256)
+        add_spin("stride_bytes", self.stride_bytes, params, 0, 2, 256, 65536, 256)
+        add_spin("sample_rate", self.sr, params, 0, 4, 8000, 96000, 1000)
+
+        Label(params, text="note_dur").grid(row=0, column=6, sticky="w", padx=(0,4))
+        ttk.Spinbox(params, textvariable=self.note_dur, from_=0.01, to=1.0, increment=0.01, width=8).grid(
+            row=0, column=7, sticky="w", padx=(0,12)
+        )
+
+        add_spin("midi_low", self.midi_low, params, 0, 8, 0, 120, 1, width=6)
+        add_spin("midi_high", self.midi_high, params, 0, 10, 0, 120, 1, width=6)
 
         #output paths
         out = Frame(self.root, padx=10, pady=4)
