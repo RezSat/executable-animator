@@ -2,7 +2,16 @@
     : Binary file to Music/Sound + Visual Generation using machine-code-ish patterns
     Author: <RezSat | Yehan Wasura>
     Email: wasurayehan@gmail.com
+
+    I use argparse so the GUI can be launched with different configurations 
+    (ex:a custom path to main.py) without editing the source, 
+    which makes the tool easier to test, share, and run in different environments. 
+    It also helps me practice controlling other scripts via command-line arguments 
+    (and honestly… because I’m bored  touch the main code and it’s fun).
 """
+import argparse
+from pathlib import Path
+import sys
 from tkinter import Tk
 from tkinter import Frame, Label, Button, Entry, StringVar, filedialog
 
@@ -53,11 +62,26 @@ class EAGui:
             self.input_path.set(fp)
             self.status.set("Selected file. Click Generate.")
 
+def locate_main_py() -> Path:
+    here = Path(__file__).resolve().parent
+    cand = here / "main.py"
+    if cand.exists():
+        return cand
+    cand = Path.cwd() / "main.py"
+    if cand.exists():
+        return cand
+    raise FileNotFoundError("Could not find main.py. Put this GUI next to main.py.")
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--main", type=Path, default=None)
+    args = ap.parse_args()
+    main_py = args.main if args.main else locate_main_py()
+
     root = Tk()
-    EAGui(root)
+    EAGui(root)  # we'll pass main_py in the next commit
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()
