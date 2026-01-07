@@ -170,5 +170,3 @@ pip install pillow
 
 ### Matplotlib / Tk backend issues
 This project uses `TkAgg`. If your environment lacks Tk support, install your OS Tk packages (Linux often needs `python3-tk`).
-
----
