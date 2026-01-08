@@ -1,7 +1,7 @@
 """
     : Binary file to Music/Sound + Visual Generation using machine-code-ish patterns
     Author: <RezSat | Yehan Wasura>
-    Email: wasurayehan@gmail.com
+    Email: wasurayehan [at] gmail [dot] com
 
     I use argparse so the GUI can be launched with different configurations 
     (ex:a custom path to main.py) without editing the source, 

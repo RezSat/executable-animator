@@ -1,7 +1,7 @@
 """
     : Binary file to Music/Sound + Visual Generation using machine-code-ish patterns
     Author: <RezSat | Yehan Wasura>
-    Email: wasurayehan@gmail.com
+    Email: wasurayehan [at] gmail [dot] com
     
     Usage:
     python bin2av.py /path/to/file.bin -o out
