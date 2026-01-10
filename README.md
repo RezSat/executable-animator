@@ -35,6 +35,19 @@ For each run you’ll get:
 
 The GUI saves outputs under `./outputs/` with a timestamped prefix.
 
+
+## Screenshots
+
+<figure>
+  <img src="screenshots/UI.png" alt="UI with oscilloscope" style="width:100%">
+  <figcaption>UI with oscilloscope as visualizer preset</figcaption>
+</figure>
+
+<figure>
+  <img src="sample_output/out.png" alt="PNG dashboard" style="width:100%">
+  <figcaption>PNG dashboard</figcaption>
+</figure>
+
 ---
 
 ## Install
